@@ -1,0 +1,36 @@
+root = true
+
+# 全域設定
+[*]
+indent_style = space
+indent_size = 2
+charset = utf-8
+end_of_line = lf
+# 文件末尾以空行作為檔案結束
+insert_final_newline = true
+# 存檔移除行尾的空格
+trim_trailing_whitespace = true
+# 每行長度多少個字符換行
+# max_line_length = 120
+
+# 個別設定
+[*.{js,jsx,ts,tsx,vue,json,y{a,}ml,sh}]
+indent_style = space
+indent_size = 2
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+# {副檔名,副檔名} 括號裡面不能有空格
+[*.{md,htm,html,txt,svg,ttf,woff,eot}]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+[Makefile]
+indent_style = tab
+indent_size = 4
+
+[*.txt]
+trim_trailing_whitespace = false

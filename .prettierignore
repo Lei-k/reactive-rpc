@@ -1,0 +1,42 @@
+.next
+.cache
+next-env.d.ts
+next.config.ts
+yarn.lock
+package-lock.json
+public
+.github
+.husky
+dist
+node_modules
+e2e-dist
+e2e-test-results
+/build
+.DS_Store
+.env.*
+.vercel
+logs
+.swc
+.vscode
+.lintstagedrc.js
+.prettierignore
+
+# Prettier 沒有 `刪除尾隨空格` 的設定選項，但搭配編輯器 "VS Code" 存檔做格式化，會多做 `刪除尾隨空格`
+# 若發現不想要 `刪除尾隨空格` 的副檔名，請加入要忽略的副檔名
+# 做法如下
+# 1 `.editorconfig` 加入 副檔名 設定 trim_trailing_whitespace = false
+# 2 `.prettierignore` 加入 副檔名
+
+*.log*
+*.json
+*.pem
+*.tsbuildinfo
+*.html
+# **/*.html # 另一種寫法
+*.htm
+*.txt
+*.md
+*.svg
+*.ttf
+*.woff
+*.eot

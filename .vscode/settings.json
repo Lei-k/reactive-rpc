@@ -1,0 +1,51 @@
+{
+  // 顯示空白字元
+  "editor.renderWhitespace": "boundary",
+  //存檔時自動格式化
+  "editor.formatOnSave": true,
+  // 1. 對 import 進行排序 2. 刪除未使用的 import
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  // 縮排自動判斷用 空格 或 TAB
+  "editor.detectIndentation": false,
+  // 按 Tab 插入空格取代 \t 定位字元
+  "editor.insertSpaces": true,
+  // 默認的格式化工具 (要安裝 Prettier - Code formatter)
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // 在方法括號之間插入空格
+  "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  // ------------------------------------------------------------
+  // ----- 以下為 optional 請自行在 User setting 加入。
+  // ------------------------------------------------------------
+  // 文字太長會自動換行顯示，但不會真的換行
+  // "editor.wordWrap": "on",
+  // 顯示縮排線
+  // "workbench.tree.renderIndentGuides": "always",
+  // 當檔案移動時，自動更新匯入的路徑
+  // "typescript.updateImportsOnFileMove.enabled": "always",
+  // "javascript.updateImportsOnFileMove.enabled": "always",
+  // files 隱藏
+  // "files.exclude": {
+  //   "jspm_packages": true,
+  //   "node_modules": true,
+  //   "**/cache/": true,
+  //   "**/.github/": true,
+  //   "**/.git": true,
+  //   "**/.svn": true,
+  //   "**/.hg": true,
+  //   "**/CVS": true,
+  //   "**/.DS_Store": true
+  // },
+  // search 忽略
+  // "search.exclude": {
+  //   "**/.git": true,
+  //   "**/node_modules": true,
+  //   "**/bower_components": true,
+  //   "**/tmp": true
+  // }
+}
