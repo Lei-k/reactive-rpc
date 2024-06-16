@@ -5,17 +5,9 @@ import express from 'express';
 import { Observable, Subscriber, interval, throttle } from 'rxjs';
 
 import { ReactiveRpcServer } from '@reactive-rpc/server';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const app = express();
 const server = createServer(app);
-
-app.use(
-  '/',
-  createProxyMiddleware({
-    target: 'http://localhost:3006',
-  })
-);
 
 async function delay(ms: number) {
   return new Promise(resolve => {

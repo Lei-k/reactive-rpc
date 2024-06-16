@@ -1,0 +1,38 @@
+{
+  "name": "@reactive-rpc/client",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "neil <qwe17235@gmail.com>",
+  "homepage": "https://github.com/Lei-k/reactive-rpc#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lei-k/reactive-rpc.git"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "bugs": {
+    "url": "https://github.com/Lei-k/reactive-rpc/issues"
+  },
+  "dependencies": {
+    "@reactive-rpc/core": "0.0.0",
+    "socket.io-client": "4.7.2",
+    "uuid": "10.0.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "9.0.8"
+  }
+}
