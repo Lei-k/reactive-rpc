@@ -2,7 +2,7 @@ import { createServer } from 'http';
 
 import express from 'express';
 
-import { Observable, Subscriber, interval, throttle } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 
 import { ReactiveRpcServer } from '@reactive-rpc/server';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -84,7 +84,7 @@ async function plateRecognize(rate: any) {
     observe(subscriber);
   });
 
-  return observable.pipe(throttle(() => interval(Number(rate))));
+  return observable;
 }
 
 rpcServer.registerMethod({
