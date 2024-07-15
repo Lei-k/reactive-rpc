@@ -5,6 +5,7 @@ import express from 'express';
 import { Observable, Subscriber } from 'rxjs';
 
 import { ReactiveRpcServer } from '@reactive-rpc/server';
+import makeSocketIOTransport from '@reactive-rpc/socketio-transport';
 
 const app = express();
 const server = createServer(app);
@@ -17,7 +18,9 @@ async function delay(ms: number) {
   });
 }
 
-const rpcServer = new ReactiveRpcServer(server);
+const rpcServer = new ReactiveRpcServer();
+
+rpcServer.useTransport(makeSocketIOTransport(server));
 
 async function processFile() {
   const observe = async (subscriber: Subscriber<any>) => {

@@ -1,9 +1,12 @@
 import { ReactiveRpcClient } from '@reactive-rpc/client';
+import makeSocketIOClientTransport from '@reactive-rpc/socketio-client-transport';
 import { Observable } from 'rxjs';
 
-const client = new ReactiveRpcClient({
-  url: 'http://localhost:3000',
-});
+const client = new ReactiveRpcClient();
+
+client.useTransport(makeSocketIOClientTransport({
+  url: 'http://localhost:3000'
+}))
 
 const processFile = client.makeObservableMethod<() => Observable<any>>({
   method: 'processFile',

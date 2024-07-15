@@ -5,22 +5,49 @@ import {
   JSONRPCID,
   JSONRPCMethodConfig,
   JSONRPCRequestBody,
+  Socket,
+  Transport,
   validateJSONRPCRequestBody,
 } from '@reactive-rpc/core';
-import { Server } from 'http';
+import assert from 'assert';
 import { Observable, debounce, interval, throttle } from 'rxjs';
 
-import SocketIO from 'socket.io';
+export interface ReactiveRpcServerOpts {
+  [key: string]: any,
+  endpoint: string
+}
+
+const defaultOpts: ReactiveRpcServerOpts = {
+  endpoint: 'rxrpc'
+}
 
 export class ReactiveRpcServer {
-  private io: SocketIO.Server;
+  private transport?: Transport;
   private rpcMap: { [key: string]: JSONRPCMethodConfig };
+  private opts: ReactiveRpcServerOpts;
 
-  constructor(server: Server) {
-    this.io = new SocketIO.Server(server);
+  private endpoint: string;
+
+  constructor(opts: ReactiveRpcServerOpts = defaultOpts) {
     this.rpcMap = {};
 
-    this.setupIO();
+    this.opts = opts;
+
+    for(let key in defaultOpts) {
+      if(!this.opts[key]) {
+        this.opts = defaultOpts[key];
+      }
+    }
+
+    this.endpoint = this.opts.endpoint;
+  }
+
+  useTransport(transport: Transport) {
+    assert(this.transport == null, 'can not set transport twice!');
+
+    this.transport = transport;
+
+    this.setupTransport();
   }
 
   registerMethod(config: JSONRPCMethodConfig) {
@@ -28,7 +55,7 @@ export class ReactiveRpcServer {
   }
 
   private respJsonRpcError(
-    socket: SocketIO.Socket,
+    socket: Socket,
     id: JSONRPCID,
     rpcError: JSONRPCError
   ) {
@@ -41,15 +68,15 @@ export class ReactiveRpcServer {
       id: id,
     };
 
-    socket.emit('jsonrpc', errResp);
+    socket.emit(this.endpoint, errResp);
   }
 
   private wrapUnaryResp(
-    socket: SocketIO.Socket,
+    socket: Socket,
     reqbody: JSONRPCRequestBody,
     result: any
   ) {
-    socket.emit('jsonrpc', {
+    socket.emit(this.endpoint, {
       jsonrpc: '2.0',
       result: {
         type: 'unary',
@@ -60,14 +87,14 @@ export class ReactiveRpcServer {
   }
 
   private wrapObservableResp(
-    socket: SocketIO.Socket,
+    socket: Socket,
     config: JSONRPCMethodConfig,
     reqbody: JSONRPCRequestBody,
     result: Observable<any>
   ) {
     let observer = {
       next: (result: any) => {
-        socket.emit('jsonrpc', {
+        socket.emit(this.endpoint, {
           jsonrpc: '2.0',
           result: {
             type: 'event',
@@ -77,7 +104,7 @@ export class ReactiveRpcServer {
         });
       },
       complete: () => {
-        socket.emit('jsonrpc', {
+        socket.emit(this.endpoint, {
           jsonrpc: '2.0',
           result: {
             type: 'event:complete',
@@ -87,7 +114,7 @@ export class ReactiveRpcServer {
         });
       },
       error: (err: any) => {
-        socket.emit('jsonrpc', {
+        socket.emit(this.endpoint, {
           jsonrpc: '2.0',
           result: {
             type: 'event:error',
@@ -98,7 +125,7 @@ export class ReactiveRpcServer {
       },
     };
 
-    socket.emit('jsonrpc', {
+    socket.emit(this.endpoint, {
       jsonrpc: '2.0',
       result: {
         type: 'observable',
@@ -119,7 +146,7 @@ export class ReactiveRpcServer {
   }
 
   private wrapResp(
-    socket: SocketIO.Socket,
+    socket: Socket,
     config: JSONRPCMethodConfig,
     reqbody: JSONRPCRequestBody,
     result: any
@@ -131,11 +158,13 @@ export class ReactiveRpcServer {
     }
   }
 
-  private setupIO() {
-    this.io.on('connection', socket => {
+  private setupTransport() {
+    assert(this.transport != null, 'must set transport first.');
+
+    this.transport.on('connection', socket => {
       console.log(`socket[${socket.id}] connected`);
 
-      socket.on('jsonrpc', async (reqbody: JSONRPCRequestBody) => {
+      socket.on(this.endpoint, async (reqbody: JSONRPCRequestBody) => {
         console.log('receieve rpc: ' + JSON.stringify(reqbody));
 
         let err = validateJSONRPCRequestBody(reqbody);

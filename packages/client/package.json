@@ -28,11 +28,6 @@
     "url": "https://github.com/Lei-k/reactive-rpc/issues"
   },
   "dependencies": {
-    "@reactive-rpc/core": "0.0.0",
-    "socket.io-client": "4.7.2",
-    "uuid": "10.0.0"
-  },
-  "devDependencies": {
-    "@types/uuid": "9.0.8"
+    "@reactive-rpc/core": "0.0.0"
   }
 }

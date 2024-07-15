@@ -1,8 +1,10 @@
+export type JSONRPCID = string | number;
+
 export type JSONRPCRequestBody = {
   method: string;
   params: any[];
   jsonrpc: '2.0';
-  id: number | string;
+  id: JSONRPCID;
 };
 
 export type JSONRPCResponseBody = {
@@ -13,7 +15,7 @@ export type JSONRPCResponseBody = {
     data: any;
   };
   jsonrpc: '2.0';
-  id: number | string;
+  id: JSONRPCID;
 };
 
 export enum JSONRPCErrorCode {
@@ -31,8 +33,6 @@ export enum JSONRPCErrorMessage {
   InvalidParams = 'Invalid params',
   InternalError = 'Internal error',
 }
-
-export type JSONRPCID = string | number;
 
 export class JSONRPCError extends Error {
   code: JSONRPCErrorCode;
@@ -83,4 +83,21 @@ export function validateJSONRPCRequestBody(reqbody: JSONRPCRequestBody) {
       JSONRPCErrorMessage.InvalidParams
     );
   }
+}
+
+export interface Socket {
+  id: number | string,
+  on<Ev extends string>(evt: Ev, listener: (...args: any[]) => void): void,
+  emit<Ev extends string>(evt: Ev, ...args: any[]): void
+}
+
+export interface Transport {
+  on(evt: 'connection', listener: (socket: Socket) => void): void
+}
+
+export interface ClientTransport {
+  on<Ev extends string>(evt: Ev, listener: (...args: any[]) => void): void,
+  emit<Ev extends string>(evt: Ev, ...args: any[]): void,
+  close(): void,
+  removeListener<Ev extends string>(evt: Ev, listener: (...args: any[]) => void): void
 }

@@ -1,6 +1,5 @@
 import { Observable, Subscriber } from 'rxjs';
-import io, { Socket } from 'socket.io-client';
-import { v4 as uuid } from 'uuid';
+import { ClientTransport } from '@reactive-rpc/core';
 
 const observableMap = {} as { [key: string]: Observable<any> };
 
@@ -16,32 +15,55 @@ interface ObservableMethodConfig {
 }
 
 interface ReactiveRpcClientConfig {
-  url?: string;
-  path?: string;
+  [key: string]: any,
+  endpoint: string
+}
+
+const defaultConfig: ReactiveRpcClientConfig = {
+  endpoint: 'rxrpc'
 }
 
 class ReactiveRpcClient {
   private config: ReactiveRpcClientConfig;
-  private socket: Socket;
+  private transport?: ClientTransport;
+  private _id: number;
+  private endpoint: string;
 
-  constructor(config?: ReactiveRpcClientConfig) {
-    this.config = config || {};
+  constructor(config: ReactiveRpcClientConfig = defaultConfig) {
+    this.config = config;
 
-    let url =
-      this.config.url || window.location.protocol + '//' + window.location.host;
+    for(let key in defaultConfig) {
+      if(!this.config[key]) {
+        this.config[key] = defaultConfig[key];
+      }
+    }
 
-    this.socket = io(url, {
-      path: this.config.path,
-    });
+    this._id = 0;
+
+    this.endpoint = this.config.endpoint;
+  }
+
+  useTransport(transport: ClientTransport) {
+    this.transport = transport;
   }
 
   close() {
-    this.socket.close();
+    if(!this.transport) return;
+
+    this.transport.close();
   }
 
   makeMethod<R extends (...args: any[]) => Promise<any>>(config: MethodConfig) {
     const m = async (...args: any[]) => {
-      let id = uuid();
+      if(!this.transport) {
+        throw new Error('please set transport first.')
+      }
+
+      let transport: ClientTransport = this.transport;
+
+      this._id = (this._id + 1) % Number.MAX_SAFE_INTEGER;
+
+      let id = this._id;
 
       let p = new Promise((resolve, reject) => {
         let timeout = setTimeout(() => {
@@ -54,7 +76,7 @@ class ReactiveRpcClient {
           subscriber = _subscriber;
         };
 
-        this.socket.on('jsonrpc', resp => {
+        transport.on(this.endpoint, resp => {
           if (resp.id !== id) {
             return;
           }
@@ -87,7 +109,7 @@ class ReactiveRpcClient {
           }
         });
 
-        this.socket.emit('jsonrpc', {
+        transport.emit(this.endpoint, {
           jsonrpc: '2.0',
           params: args,
           id: id,
@@ -105,7 +127,15 @@ class ReactiveRpcClient {
     config: ObservableMethodConfig
   ) {
     const m = (...args: any[]) => {
-      let id = uuid();
+      if(!this.transport) {
+        throw new Error('please set transport first.')
+      }
+
+      let transport: ClientTransport = this.transport;
+
+      this._id = (this._id + 1) % Number.MAX_SAFE_INTEGER;
+
+      let id = this._id;
 
       let subscriber: Subscriber<any> | null = null;
 
@@ -114,7 +144,7 @@ class ReactiveRpcClient {
       };
 
       let timeout: NodeJS.Timeout | null = setTimeout(() => {
-        this.socket.removeListener('jsonrpc', handler);
+        transport.removeListener(this.endpoint, handler);
 
         subscriber && subscriber.error(new Error('timeout'));
       }, config.timeout ?? 15000);
@@ -135,7 +165,7 @@ class ReactiveRpcClient {
 
         if (config.interArrivalTimeout && config.interArrivalTimeout > 0) {
           timeout = setTimeout(() => {
-            this.socket.removeListener('jsonrpc', handler);
+            transport.removeListener(this.endpoint, handler);
 
             subscriber && subscriber.error(new Error('timeout'));
           }, config.interArrivalTimeout);
@@ -143,7 +173,7 @@ class ReactiveRpcClient {
 
         if (resp.error) {
           // remove handler when error occure
-          this.socket.removeListener('jsonrpc', handler);
+          transport.removeListener(this.endpoint, handler);
 
           subscriber && subscriber.error(resp.error);
         }
@@ -158,13 +188,13 @@ class ReactiveRpcClient {
           subscriber = null;
 
           // remove handler when event:complete arrive
-          this.socket.removeListener('jsonrpc', handler);
+          transport.removeListener(this.endpoint, handler);
         }
       };
 
-      this.socket.on('jsonrpc', handler);
+      transport.on(this.endpoint, handler);
 
-      this.socket.emit('jsonrpc', {
+      transport.emit(this.endpoint, {
         jsonrpc: '2.0',
         params: args,
         id: id,

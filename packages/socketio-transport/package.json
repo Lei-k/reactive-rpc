@@ -1,8 +1,8 @@
 {
-  "name": "@reactive-rpc/server",
+  "name": "@reactive-rpc/socketio-transport",
   "version": "0.0.0",
   "description": "> TODO: description",
-  "author": "neil <qwe17235@gmail.com>",
+  "author": "Neil Lei <qwe17235@gmail.com>",
   "homepage": "https://github.com/Lei-k/reactive-rpc#readme",
   "license": "ISC",
   "main": "lib/index.js",
@@ -27,6 +27,7 @@
     "url": "https://github.com/Lei-k/reactive-rpc/issues"
   },
   "dependencies": {
-    "@reactive-rpc/core": "0.0.0"
+    "@reactive-rpc/core": "0.0.0",
+    "socket.io": "4.7.5"
   }
 }

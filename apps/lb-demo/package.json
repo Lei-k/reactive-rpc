@@ -31,7 +31,9 @@
   },
   "dependencies": {
     "@reactive-rpc/client": "0.0.0",
-    "@reactive-rpc/server": "0.0.0"
+    "@reactive-rpc/server": "0.0.0",
+    "@reactive-rpc/socketio-client-transport": "0.0.0",
+    "@reactive-rpc/socketio-transport": "0.0.0"
   },
   "devDependencies": {
     "concurrently": "8.2.2"

@@ -7,16 +7,23 @@ import { Observable, merge } from 'rxjs';
 import { ReactiveRpcClient } from '@reactive-rpc/client';
 import { ReactiveRpcServer } from '@reactive-rpc/server';
 
+import makeSocketIOTransport from '@reactive-rpc/socketio-transport';
+import makeSocketIOClientTransport from '@reactive-rpc/socketio-client-transport';
+
 const app = express();
 const server = createServer(app);
 
-const upstream1 = new ReactiveRpcClient({
-  url: 'http://localhost:3001',
-});
+const upstream1 = new ReactiveRpcClient();
 
-const upstream2 = new ReactiveRpcClient({
+upstream1.useTransport(makeSocketIOClientTransport({
+  url: 'http://localhost:3001',
+}))
+
+const upstream2 = new ReactiveRpcClient();
+
+upstream2.useTransport(makeSocketIOClientTransport({
   url: 'http://localhost:3002',
-});
+}))
 
 const server1 = {
   processFile: upstream1.makeObservableMethod<() => Observable<any>>({
@@ -48,7 +55,9 @@ async function delay(ms: number) {
   });
 }
 
-const rpcServer = new ReactiveRpcServer(server);
+const rpcServer = new ReactiveRpcServer();
+
+rpcServer.useTransport(makeSocketIOTransport(server));
 
 async function processFile() {
   return merge(server1.processFile(), server2.processFile());
